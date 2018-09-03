@@ -2,7 +2,7 @@ pipeline {
     agent {
         dockerfile {
             filename 'Dockerfile.build'
-            customWorkspace "/var/jenkins_home/go/src/github.com/bozaro/tech-db-forum"
+            checkoutToSubdirectory "go/src/github.com/bozaro/tech-db-forum"
         }
     }
 
@@ -19,7 +19,8 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                sh """
+                dir ("go/src/$PROJ") {
+                    sh """
 export PATH=\$GOPATH/bin:\$PATH
 go install -v ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 go install -v ./vendor/github.com/jteeuwen/go-bindata/go-bindata
@@ -28,6 +29,7 @@ go install -v ./vendor/github.com/aktau/github-release
 go generate -x .
 mkdir -p target/dist
 """
+                }
             }
         }
         stage('Build') {
@@ -39,13 +41,15 @@ mkdir -p target/dist
                         GOARCH = "amd64"
                         SUFFIX = ""
                     }
-                    steps {
-                        sh """
+                    dir ("go/src/$PROJ") {
+                        steps {
+                            sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                        }
                     }
                 }
                 stage('linux_amd64') {
@@ -54,13 +58,15 @@ zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
                         GOARCH = "amd64"
                         SUFFIX = ""
                     }
-                    steps {
-                        sh """
+                    dir ("go/src/$PROJ") {
+                        steps {
+                            sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                        }
                     }
                 }
                 stage('windows_386') {
@@ -69,13 +75,15 @@ zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
                         GOARCH = "386"
                         SUFFIX = ".exe"
                     }
-                    steps {
-                        sh """
+                    dir ("go/src/$PROJ") {
+                        steps {
+                            sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                        }
                     }
                 }
                 stage('windows_amd64') {
@@ -84,24 +92,28 @@ zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
                         GOARCH = "amd64"
                         SUFFIX = ".exe"
                     }
-                    steps {
-                        sh """
+                    dir ("go/src/$PROJ") {
+                        steps {
+                            sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                        }
                     }
                 }
             }
         }
         stage('Prepare gp-pages') {
             steps {
-                sh """
+                dir ("go/src/$PROJ") {
+                    sh """
 git branch -fD gh-pages || true
 git branch -rd origin/gh-pages || true
 ghp-import -n target/dist
 """
+                }
             }
         }
         stage('Publish gh-pages') {
@@ -110,9 +122,11 @@ ghp-import -n target/dist
             }
             steps {
                 withCredentials([[$class: 'StringBinding', credentialsId: 'github_bozaro', variable: 'GITHUB_TOKEN']]) {
-                    sh """
+                    dir ("go/src/$PROJ") {
+                       sh """
 git push -qf https://\${GITHUB_TOKEN}@github.com/bozaro/tech-db-forum.git gh-pages
 """
+                    }
                 }
             }
         }
@@ -126,7 +140,8 @@ git push -qf https://\${GITHUB_TOKEN}@github.com/bozaro/tech-db-forum.git gh-pag
             }
             steps {
                 withCredentials([[$class: 'StringBinding', credentialsId: 'github_bozaro', variable: 'GITHUB_TOKEN']]) {
-                    sh """
+                    dir ("go/src/$PROJ") {
+                       sh """
 export PATH=\$GOPATH/bin:\$PATH
 github-release info --tag ${params.TAG_NAME} || github-release release --tag ${params.TAG_NAME} --draft
 for i in target/dist/*.zip; do
@@ -135,13 +150,14 @@ done
 git tag ${params.TAG_NAME}
 git push -qf https://\${GITHUB_TOKEN}@github.com/bozaro/tech-db-forum.git gh-pages ${params.TAG_NAME}
 """
+                    }
                 }
             }
         }
     }
     post {
         always {
-            archiveArtifacts artifacts: "target/dist/*.zip", fingerprint: true
+            archiveArtifacts artifacts: "go/src/$PROJ/target/dist/*.zip", fingerprint: true
         }
     }
 }

@@ -41,14 +41,16 @@ mkdir -p target/dist
                         GOARCH = "amd64"
                         SUFFIX = ""
                     }
-                    dir ("go/src/$PROJ") {
-                        steps {
-                            sh """
+                    steps {
+                        dir ("go/src/$PROJ") {
+                            steps {
+                                sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                            }
                         }
                     }
                 }
@@ -58,14 +60,16 @@ zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
                         GOARCH = "amd64"
                         SUFFIX = ""
                     }
-                    dir ("go/src/$PROJ") {
-                        steps {
-                            sh """
+                    steps {
+                        dir ("go/src/$PROJ") {
+                            steps {
+                                sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                            }
                         }
                     }
                 }
@@ -75,14 +79,16 @@ zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
                         GOARCH = "386"
                         SUFFIX = ".exe"
                     }
-                    dir ("go/src/$PROJ") {
-                        steps {
-                            sh """
+                    steps {
+                        dir ("go/src/$PROJ") {
+                            steps {
+                                sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                            }
                         }
                     }
                 }
@@ -92,14 +98,16 @@ zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
                         GOARCH = "amd64"
                         SUFFIX = ".exe"
                     }
-                    dir ("go/src/$PROJ") {
-                        steps {
-                            sh """
+                    steps {
+                        dir ("go/src/$PROJ") {
+                            steps {
+                                sh """
 export PATH=\$GOPATH/bin:\$PATH
 go build -ldflags " -X ${PROJ}/tests.BuildTag=\${BUILD_TAG} -X ${PROJ}/tests.GitCommit=\$(git rev-parse HEAD)" -o build/\${GOOS}_\${GOARCH}/tech-db-forum\${SUFFIX}
 cd build/\${GOOS}_\${GOARCH}
 zip ../../target/dist/\${GOOS}_\${GOARCH}.zip tech-db-forum\${SUFFIX}
 """
+                            }
                         }
                     }
                 }

@@ -2,8 +2,11 @@ pipeline {
     agent {
         dockerfile {
             filename 'Dockerfile.build'
-            checkoutToSubdirectory "go/src/github.com/bozaro/tech-db-forum"
         }
+    }
+
+    options {
+        checkoutToSubdirectory "go/src/github.com/bozaro/tech-db-forum"
     }
 
     parameters {
